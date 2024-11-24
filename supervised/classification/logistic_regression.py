@@ -3,9 +3,11 @@ import pandas as pd
 from utils import *
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.svm import LinearSVC 
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix, classification_report
+from imblearn.over_sampling import SMOTE, RandomOverSampler, ADASYN
 
 df = load_data('../loan.csv')  
 
@@ -25,32 +27,42 @@ df.info()
 
 '''
 
+'''
+EDA: Exploratory data analysis
+ - Visualizations
+ - Preprocessing
+'''
+
+# Visualizations
+# subplots(df)
+
 # Lets pre-process dataset by fixing above issues
 df = pre_process(df)
 
 y = df['Loan_Status']
 x = df.drop(columns = ['Loan_Status'])
-# x.info()
 
 # split into train, test sets
-X_train, X_test, y_train, y_test = train_test_split(x,y, test_size=0.20, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(x,y, test_size=0.20, random_state=42, shuffle=True)
 
 x_test_set = X_test
 y_test_set = y_test
 
 # Further split train set into train and validate
-X_train, X_test, y_train, y_test = train_test_split(X_train,y_train, test_size=0.10, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_train,y_train, test_size=0.10, random_state=42, shuffle=True)
 
 x_validate_set = X_test
 y_validate_set = y_test
 
-model = LogisticRegression(max_iter=500)
-# model = DecisionTreeClassifier()
-# model = RandomForestClassifier(n_estimators=300, random_state=42)
+# model = LogisticRegression(max_iter=400)
+model = LinearSVC(max_iter=1000, random_state=42)
 
+# Add this to handle oversampling issue
+# oversampler = SMOTE(random_state=42)
+# X_resampled, y_resampled = oversampler.fit_resample(X_train, y_train)
+# model = model.fit(X_resampled, y_resampled)
 
 model = model.fit(X_train, y_train)
-
 y_pred = model.predict(x_validate_set)
 
 tn, fp, fn, tp = confusion_matrix(y_validate_set, y_pred).ravel()

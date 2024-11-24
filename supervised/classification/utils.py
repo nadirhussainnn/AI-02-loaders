@@ -2,6 +2,14 @@ import pandas as pd
 from sklearn.impute import SimpleImputer
 import re
 from sklearn.preprocessing import LabelEncoder, StandardScaler, MinMaxScaler
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+plt.rcParams['figure.dpi'] = 200
+plt.rcParams['savefig.bbox'] = 'tight'
+plt.rcParams['figure.figsize'] = [4.0, 2.0]
+plt.rcParams.update({'font.size': 8})
 
 def load_data(path, delimiter=","):
     return pd.read_csv(path, delimiter=delimiter)
@@ -65,6 +73,7 @@ def normalize_values(df, column):
     return df
 
 def pre_process(df):
+
     df = df.drop(columns = ["Loan_ID"])
     df = remove_chars_from_numericals(df, 'Dependents')
     df = fill_categorical(df)
@@ -79,3 +88,20 @@ def pre_process(df):
     df = normalize_values(df, 'CoapplicantIncome')
     df = normalize_values(df, 'LoanAmount')
     return df
+
+def subplots(df):
+
+    fig, axes = plt.subplots(2, 4, figsize=(8, 4))
+
+    fig.suptitle('Frequency of non-numeric columns')
+    sns.countplot(ax=axes[0, 0], data=df, x='Gender')
+    sns.countplot(ax=axes[0, 1], data=df, x='Married')
+    sns.countplot(ax=axes[0, 2], data=df, x='Dependents')
+    sns.countplot(ax=axes[0, 3], data=df, x='Education')
+    sns.countplot(ax=axes[1, 0], data=df, x='Self_Employed')
+    sns.countplot(ax=axes[1, 1], data=df, x='Credit_History')
+    sns.countplot(ax=axes[1, 2], data=df, x='Property_Area')
+    sns.countplot(ax=axes[1, 3], data=df, x='Loan_Status')
+
+    plt.tight_layout()
+    plt.show()
